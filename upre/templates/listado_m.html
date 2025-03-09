@@ -1,0 +1,218 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAM-GAIOC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        .small-text {
+            font-size: 0.8rem; /* Ajusta este valor según lo necesites */
+        }
+        .navbar-toggler{
+            background-color: gainsboro;
+        }
+        .background-container {
+            position: fixed; /* Fija el contenedor para que esté en la parte posterior */
+            top: 10%; /* Posiciona el contenedor a 10% desde la parte superior de la pantalla */
+            left: 10%; /* Posiciona el contenedor a 10% desde la parte izquierda de la pantalla */
+            width: 80%; /* Ocupa el 80% del ancho de la pantalla */
+            height: 80%; /* Ocupa el 80% de la altura de la pantalla */
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/67/Mapa_Electoral_de_Bolivia_por_departamentos.svg'); /* Ruta a tu imagen de fondo */
+            background-size: contain; /* Ajusta la imagen para que se ajuste dentro del contenedor */
+            background-position: center; /* Centra la imagen dentro del contenedor */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+            opacity: 0.2; /* Ajusta la opacidad para hacer la imagen ligeramente transparente */
+            z-index: -1; /* Asegura que el fondo esté detrás del contenido */
+        }
+        
+        /* Contenedor del contenido */
+        .content-container {
+            position: relative; /* Asegura que el contenido se muestre sobre la imagen de fondo */
+            z-index: 1; /* Asegura que el contenido esté sobre el fondo */
+            padding: 20px;
+        }
+        
+        /* Ajustes para pantallas pequeñas */
+        @media (max-width: 767px) {
+            .background-container {
+                top: 5%; /* Ajusta el top para pantallas más pequeñas */
+                left: 5%; /* Ajusta el left para pantallas más pequeñas */
+                width: 90%; /* Aumenta el ancho para pantallas más pequeñas */
+                height: 90%; /* Aumenta la altura para pantallas más pequeñas */
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand text-white" href="#">GAM-GAIOC</a>
+          <a type="button" class="btn btn-warning d-flex justify-content-end" href="{% url 'inicio'%}">➧ MPR</a>
+        
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="buscadorMunicipio" class="form-control" placeholder="Buscar municipio...">
+                <button class="btn btn-primary" type="button" id="botonBuscar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                  </svg></button>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="departamento" class="form-label">Departamento:</label>
+                <select name="departamento" id="departamento" class="form-select">
+                    <option value="">Todos</option>
+                    {% for departamento in departamentos %}
+                        <option value="{{ departamento }}">{{ departamento }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="provincia" class="form-label">Provincia:</label>
+                <select name="provincia" id="provincia" class="form-select" disabled aria-disabled="true">
+                    <option value="">Seleccione un departamento primero</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="municipio" class="form-label">Municipio:</label>
+                <select name="municipio" id="municipio" class="form-select" disabled aria-disabled="true">
+                    <option value="">Seleccione una provincia primero</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <button id="filtrarBtn" class="btn btn-primary">Filtrar</button>
+            </div>
+        </div>
+        
+        <div class="background-container"></div>
+        <div id="sinResultados" class="alert alert-info" style="display: none;">
+            No se encontraron municipios que coincidan con la búsqueda.
+        </div>
+        <div id="tablaMunicipios">
+            <!-- La tabla se cargará aquí dinámicamente -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+
+            // Función para normalizar texto (sin acentos, en minúsculas)
+            function normalizarTexto(texto) {
+                return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            }
+        
+            // Función para actualizar la tabla con los filtros
+            function actualizarTabla(filtros) {
+                $.ajax({
+                    url: '{% url "actualizar_tabla_m" %}',
+                    data: filtros,
+                    success: function(data) {
+                        $('#tablaMunicipios').html(data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error al actualizar la tabla:', error);
+                    }
+                });
+            }
+        
+            // Evento para el cambio en el selector de departamentos
+            $('#departamento').change(function() {
+                var departamento = $(this).val();
+                if (departamento) {
+                    $.ajax({
+                        url: '{% url "obtener_provincias" %}',
+                        data: {'departamento': departamento},
+                        dataType: 'json',
+                        success: function(data) {
+                            var options = '<option value="">Seleccione una provincia</option>';
+                            $.each(data.provincias, function(index, value) {
+                                options += '<option value="' + value + '">' + value + '</option>';
+                            });
+                            $('#provincia').html(options).prop('disabled', false);
+                            $('#municipio').html('<option value="">Seleccione una provincia primero</option>').prop('disabled', true);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al cargar provincias:', error);
+                        }
+                    });
+                } else {
+                    $('#provincia').html('<option value="">Seleccione un departamento primero</option>').prop('disabled', true);
+                    $('#municipio').html('<option value="">Seleccione una provincia primero</option>').prop('disabled', true);
+                }
+            });
+        
+            // Evento para el cambio en el selector de provincias
+            $('#provincia').change(function() {
+                var provincia = $(this).val();
+                var departamento = $('#departamento').val();  // Obtener el departamento seleccionado
+                
+                if (provincia) {
+                    $.ajax({
+                        url: '{% url "obtener_municipios" %}',
+                        data: {
+                            'provincia': provincia,
+                            'departamento': departamento  // Enviar también el departamento
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            var options = '<option value="">Seleccione un municipio</option>';
+                            $.each(data.municipios, function(index, value) {
+                                options += '<option value="' + value + '">' + value + '</option>';
+                            });
+                            $('#municipio').html(options).prop('disabled', false);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al cargar municipios:', error);
+                        }
+                    });
+                } else {
+                    $('#municipio').html('<option value="">Seleccione una provincia primero</option>').prop('disabled', true);
+                }
+            });
+        
+            // Evento para la búsqueda con el botón de filtro
+            $('#filtrarBtn').click(function() {
+                var filtros = {
+                    'departamento': $('#departamento').val(),
+                    'provincia': $('#provincia').val(),
+                    'municipio': $('#municipio').val()
+                };
+                console.log('Filtros seleccionados:', filtros); // Para depuración
+                actualizarTabla(filtros);
+            });
+        
+            // Evento para la búsqueda por municipio (normaliza la entrada)
+            $('#botonBuscar').on('click', function() {
+                var busqueda = $('#buscadorMunicipio').val();
+                var busquedaNormalizada = normalizarTexto(busqueda);
+                actualizarTabla({'busqueda': busquedaNormalizada});
+            });
+        
+            // Búsqueda por Enter en el campo del buscador
+            $('#buscadorMunicipio').on('keypress', function(e) {
+                if (e.which === 13) {  // Tecla Enter
+                    $('#botonBuscar').click();
+                }
+            });
+            
+        });
+        
+        
+    </script>
+
+
+    <div class="container mt-4">
+        <div class="background-container"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

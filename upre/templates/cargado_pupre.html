@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <h1 style="color: brown;"> UPRE </h1>
+    <title>Cargar proyectos upre CSV</title>
+</head>
+<body>
+    <h1>Cargar mun %% desde CSV</h1>
+    
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="csv_file" accept=".csv">
+        <button type="submit">Cargar CSV</button>
+    </form>
+</body>
+</html>

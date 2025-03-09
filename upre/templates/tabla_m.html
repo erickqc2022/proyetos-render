@@ -1,0 +1,76 @@
+{% if municipios %}
+<div class="container">
+    <div class="row d-none d-lg-block"> 
+        <div class="col-12">
+            <table class="table table-striped table-bordered table-hover table-sm">
+                <thead class="table-light">
+                <tr>
+                    <th>GAM</th>
+                    <th>Autoridad</th>
+                    <th>sigla</th>
+                    <th>linea</th>
+                    <th>Elecciones<br>2016</th>
+                    <th>Elecciones<br>2019</th>
+                    <th>Elecciones<br>2020</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in municipios %}
+                    <tr>
+                        <td>{{ item.departamento }} - {{ item.provin }} - {{ item.muni}}</td>
+                        <td>{{ item.alcalde }}</td>
+                        <td>{{ item.sigla}}</td>
+                        <td>{{ item.linea}}</td>
+                        <td>{{ item.e2016 }} </td>
+                        <td>{{ item.e2019 }} </td>
+                        <td>{{ item.e2020 }} </td>
+                        <td>
+                            <a href="{% url 'proyectos_municipio' departamento=item.departamento municipio=item.muni %}" class="btn btn-sm btn-primary">Ver Proyectos</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row d-lg-none"> 
+        {% for item in municipios %}
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        
+                        <strong class="text-primary small">
+                            <span class="badge bg-primary opacity-50" style="font-size: 0.8rem;">GAM</span> 
+                            {{ item.departamento }} - {{ item.provin }} - {{ item.muni}}
+                        </strong>
+                        <p class="card-text small">
+                            <strong>Autoridad: </strong> {{item.alcalde}} <br>
+                            <strong>sigla: </strong> {{item.sigla}} ➤➤ {{item.linea}} <br>
+                            <strong><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-package"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>2016: 
+                            </strong>{{item.e2016}} ⁃<strong> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-package"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>2019: 
+                            </strong> {{item.e2019}} ⁃<strong> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-package"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>2020: 
+                            </strong>{{item.e2020}}<br>
+                        </p>
+                        <a href="{% url 'proyectos_municipio' departamento=item.departamento municipio=item.muni %}" class="btn btn-sm btn-primary">Proyectos</a>
+                        <div class="row">
+                            <div class="col">
+                                
+                            </div>
+                            <div class="col">
+                                <strong class="text-info small d-flex justify-content-end">{{ item.proyecto.estado }}</strong>
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% else %}
+    <p class="alert alert-info">No se encontraron proyectos con los criterios de búsqueda.</p>
+{% endif %}
