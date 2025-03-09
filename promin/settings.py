@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'promin.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = bd.POSTGRESQL
+DATABASES = bd.SQLITE
 
 
 # Password validation
