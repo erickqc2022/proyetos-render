@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import dj_database_url
 from pathlib import Path
 import promin.db as bd
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
