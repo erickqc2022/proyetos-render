@@ -78,7 +78,12 @@ WSGI_APPLICATION = 'promin.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = bd.SQLITE
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://db_proyectos_uwfm_user:zMTTZoWxpSCnbpAo1EHaYdE33Eavlfwz@dpg-cv717152ng1s738g95c0-a/db_proyectos_uwfm')
+
+# Configuración de la base de datos
+DATABASES = {
+    'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
+}
 
 
 # Password validation
